@@ -9,7 +9,7 @@ MONGODB_URI = "mongodb+srv://<username>:<password>@cluster0.mongodb.net/citycare
 import os
 
 # MongoDB Connection String (URL)
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/citycare_db")
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://jaiganesh4028_db_user:aGiPhDEpj9HZTXzE@cluster0.x0gdhsu.mongodb.net/?appName=Cluster0")
 
 # Database & Collection Names
 DB_NAME = "citycare_db"
