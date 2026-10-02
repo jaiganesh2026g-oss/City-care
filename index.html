@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityCare - Citizen Civic Issue Reporting Platform</title>
+  <meta name="description"
+    content="CityCare allows citizens to report public issues like potholes, garbage, water leaks, streetlights, and drainage directly to local city authorities.">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('citycare_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#home" class="brand-logo" id="nav-brand">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+        <span>CityCare</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#report">Report Problem</a></li>
+        <li><a href="#track">Track Complaint</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Dark & Bright Mode Toggle Button -->
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Dark and Bright Mode"
+          title="Switch Theme (Dark / Bright Mode)">
+          <div class="theme-toggle-track">
+            <span class="theme-icon sun-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </span>
+            <span class="theme-icon moon-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+            <div class="theme-toggle-thumb"></div>
+          </div>
+          <span class="theme-toggle-text">Dark Mode</span>
+        </button>
+
+        <!-- Citizen Profile Button Trigger & Dropdown -->
+        <div style="position: relative;">
+          <button id="citizen-profile-trigger" class="btn btn-outline btn-sm"
+            style="display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span id="nav-profile-label">Sign In / Register</span>
+          </button>
+
+          <!-- Citizen Profile Dropdown Popup -->
+          <div class="profile-dropdown-menu" id="citizen-profile-dropdown" style="right:0;">
+            <div class="profile-dropdown-header">
+              <div class="profile-dropdown-avatar" id="dropdown-avatar-box">CP</div>
+              <div>
+                <div class="profile-dropdown-title" id="dropdown-user-title">Citizen Guest</div>
+                <div class="profile-dropdown-role" id="dropdown-user-sub">Not Logged In</div>
+                <div class="profile-dropdown-status" id="dropdown-user-status">
+                  <span class="profile-dropdown-status-dot" id="dropdown-status-dot"></span> Guest Mode
+                </div>
+              </div>
+            </div>
+
+            <!-- Appearance / Theme Switcher -->
+            <div class="profile-theme-selector">
+              <div class="profile-theme-title">
+                <span>Display Theme</span>
+                <span id="active-theme-label" style="font-size:0.75rem; color:var(--primary-blue);">☀️ Bright
+                  Mode</span>
+              </div>
+              <div class="profile-theme-options">
+                <button type="button" class="theme-opt-btn" data-set-theme="light">
+                  ☀️ Bright Mode
+                </button>
+                <button type="button" class="theme-opt-btn" data-set-theme="dark">
+                  🌙 Dark Mode
+                </button>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;" id="dropdown-user-actions">
+              <button type="button" id="btn-dropdown-signin" class="btn btn-primary btn-sm"
+                style="width:100%; text-align:center;">
+                🔑 Sign In / Register
+              </button>
+              <a href="admin.html" id="btn-dropdown-admin" class="btn btn-outline btn-sm"
+                style="width:100%; text-align:center;">Admin Portal &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <a href="admin.html" id="btn-nav-admin-portal" class="btn btn-primary btn-sm">Admin Portal &rarr;</a>
+        <button class="hamburger-btn" id="hamburger-toggle" aria-label="Toggle Navigation Menu">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobile-drawer">
+      <a href="#home">Home</a>
+      <a href="#categories">Categories</a>
+      <a href="#report">Report Problem</a>
+      <a href="#track">Track Complaint</a>
+      <a href="#about">About</a>
+      <a href="admin.html" style="color: var(--primary-blue); font-weight: 700;">Go to Admin Dashboard &rarr;</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="home">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <span class="section-tag">Empowering Citizens & City Authorities</span>
+          <h1>Make Your City Better, <span>One Report at a Time</span></h1>
+          <p class="hero-subtitle">
+            Spot a problem? Report it. Track it. Help your community get public issues resolved quickly and
+            transparently.
+          </p>
+          <div class="hero-cta">
+            <a href="#report" class="btn btn-primary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Report a Problem
+            </a>
+            <a href="#track" class="btn btn-secondary btn-lg">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Track Complaint
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-banner-card">
+          <svg class="hero-illustration" viewBox="0 0 500 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="500" height="320" rx="16" fill="#E3F2FD" />
+            <!-- City Skyline Backdrop -->
+            <path d="M40 260V180H90V140H140V260H40Z" fill="#BBDEFB" />
+            <path d="M160 260V120H220V90H280V260H160Z" fill="#90CAF9" />
+            <path d="M300 260V150H360V110H420V260H300Z" fill="#BBDEFB" />
+            <!-- Road & Markings -->
+            <rect x="0" y="250" width="500" height="70" fill="#1565C0" />
+            <line x1="20" y1="285" x2="80" y2="285" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="10 10" />
+            <line x1="140" y1="285" x2="200" y2="285" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="10 10" />
+            <line x1="260" y1="285" x2="320" y2="285" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="10 10" />
+            <line x1="380" y1="285" x2="440" y2="285" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="10 10" />
+            <!-- Pin Card Overlay -->
+            <rect x="180" y="40" width="220" height="90" rx="12" fill="#FFFFFF"
+              filter="drop-shadow(0px 8px 16px rgba(13, 71, 161, 0.15))" />
+            <circle cx="215" cy="70" r="18" fill="#1565C0" />
+            <path d="M215 62L219 70H211L215 62Z" fill="#FFFFFF" />
+            <text x="245" y="70" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="14"
+              fill="#0D47A1">Pothole Reported</text>
+            <text x="245" y="88" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" fill="#64748B">Main Market
+              Rd • Priority: High</text>
+            <rect x="245" y="96" width="70" height="16" rx="8" fill="#E3F2FD" />
+            <text x="254" y="108" font-family="'Plus Jakarta Sans', sans-serif" font-weight="bold" font-size="9"
+              fill="#1565C0">IN PROGRESS</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Impact Stats Counter Banner -->
+  <section class="stats-strip">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number" id="stat-resolved-count">1,840+</div>
+          <div class="stat-label">Issues Resolved</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">24 Hours</div>
+          <div class="stat-label">Average Response Time</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">98.5%</div>
+          <div class="stat-label">Citizen Satisfaction</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="stat-active-citizens">12,400+</div>
+          <div class="stat-label">Active Community Members</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Categories Section -->
+  <section class="categories-section" id="categories">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Public Issue Categories</span>
+        <h2 class="section-title">What Issue Are You Facing?</h2>
+        <p class="section-description">Select a category below to quickly file your complaint with local municipal
+          departments.</p>
+      </div>
+
+      <div class="category-grid">
+        <div class="category-card" data-category="Garbage">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 002 2h8a2 2 0 002-2V7H6v12z" />
+            </svg>
+          </div>
+          <h3>Garbage & Waste</h3>
+          <p>Uncollected trash, illegal dumping sites, public bins overflowing.</p>
+          <span class="category-action">Report Waste Issue &rarr;</span>
+        </div>
+
+        <div class="category-card" data-category="Road & Potholes">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4h14v4z" />
+            </svg>
+          </div>
+          <h3>Road & Potholes</h3>
+          <p>Damaged roads, dangerous potholes, broken speed bumps.</p>
+          <span class="category-action">Report Road Issue &rarr;</span>
+        </div>
+
+        <div class="category-card" data-category="Water Leakage">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />
+            </svg>
+          </div>
+          <h3>Water Leakage</h3>
+          <p>Broken pipelines, leaking clean water, main supply line bursts.</p>
+          <span class="category-action">Report Leakage &rarr;</span>
+        </div>
+
+        <div class="category-card" data-category="Streetlights">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M9 21h6v-2H9v2zm3-19a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h3>Streetlights</h3>
+          <p>Non-functional street lamps, broken poles, dark stretches.</p>
+          <span class="category-action">Report Streetlight &rarr;</span>
+        </div>
+
+        <div class="category-card" data-category="Drainage">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14.93V18h-2v-1.07A7.001 7.001 0 015.07 13H4v-2h1.07A7.001 7.001 0 0111 5.07V4h2v1.07A7.001 7.001 0 0118.93 11H20v2h-1.07A7.001 7.001 0 0113 16.93z" />
+            </svg>
+          </div>
+          <h3>Drainage & Overflow</h3>
+          <p>Blocked stormwater drains, sewage overflow, standing rainwater.</p>
+          <span class="category-action">Report Drainage Issue &rarr;</span>
+        </div>
+
+        <div class="category-card" data-category="Other">
+          <div class="category-icon-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+            </svg>
+          </div>
+          <h3>Other Public Issues</h3>
+          <p>Fallen trees, damaged public parks, broken signboards, noise.</p>
+          <span class="category-action">Report Other Issue &rarr;</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Simple 3-Step Workflow</span>
+        <h2 class="section-title">How CityCare Works</h2>
+        <p class="section-description">Connecting citizens directly with municipal authorities in three seamless steps.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Spot a Problem</h3>
+          <p>Notice a civic issue in your neighborhood like broken roads, uncleaned trash, or dark streetlights.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Report It</h3>
+          <p>Upload a clear photo, enter the location details, select the urgency level, and submit the complaint.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Track & Resolve</h3>
+          <p>City officials review your report, assign field teams, update progress, and resolve the issue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Problem Form Section -->
+  <section class="report-section" id="report">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Citizen Complaint Portal</span>
+        <h2 class="section-title">Report a Civic Problem</h2>
+        <p class="section-description">Fill out the form below. CityCare immediately routes your complaint to
+          responsible department teams.</p>
+      </div>
+
+      <div class="form-wrapper">
+        <form id="complaint-form" novalidate>
+          <div class="form-grid">
+
+            <!-- Citizen Full Name -->
+            <div class="form-group">
+              <label for="fullName" class="form-label">Full Name <span class="required">*</span></label>
+              <input type="text" id="fullName" class="form-control" placeholder="e.g. Ramesh Kumar" required>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="phoneNumber" class="form-label">Phone Number <span
+                  style="font-weight: normal; color: var(--text-muted);">(Optional)</span></label>
+              <input type="tel" id="phoneNumber" class="form-control" placeholder="e.g. +91 98765 43210">
+            </div>
+
+            <!-- Problem Category -->
+            <div class="form-group">
+              <label for="category" class="form-label">Problem Category <span class="required">*</span></label>
+              <select id="category" class="form-control" required>
+                <option value="" disabled selected>Select category...</option>
+                <option value="Garbage">Garbage & Waste</option>
+                <option value="Road & Potholes">Road & Potholes</option>
+                <option value="Water Leakage">Water Leakage</option>
+                <option value="Streetlights">Streetlights</option>
+                <option value="Drainage">Drainage & Overflow</option>
+                <option value="Other">Other Public Issues</option>
+              </select>
+            </div>
+
+            <!-- Problem Title -->
+            <div class="form-group">
+              <label for="title" class="form-label">Problem Title <span class="required">*</span></label>
+              <input type="text" id="title" class="form-control"
+                placeholder="Brief summary (e.g. Large pothole near Sector 5 market)" required>
+            </div>
+
+            <!-- Area / Location -->
+            <div class="form-group full-width">
+              <label for="location" class="form-label">Area / Location <span class="required">*</span></label>
+              <div class="location-input-group">
+                <input type="text" id="location" class="form-control"
+                  placeholder="Street address, landmark, or area name" required>
+                <button type="button" class="btn-locate" id="btn-detect-location">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="12 8 8 12 12 16 12 8"></polygon>
+                  </svg>
+                  Detect Location
+                </button>
+              </div>
+            </div>
+
+            <!-- Problem Description -->
+            <div class="form-group full-width">
+              <label for="description" class="form-label">Detailed Description <span class="required">*</span></label>
+              <textarea id="description" class="form-control" rows="4"
+                placeholder="Provide details such as exact landmarks, severity, or how long the problem has existed..."
+                required></textarea>
+            </div>
+
+            <!-- Photo Upload Dropzone -->
+            <div class="form-group full-width">
+              <label class="form-label">Upload Issue Photo <span
+                  style="font-weight: normal; color: var(--text-muted);">(Optional but recommended)</span></label>
+
+              <div class="dropzone" id="upload-dropzone">
+                <div class="dropzone-content">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                  </svg>
+                  <div class="dropzone-text">Click or Drag & Drop photo here</div>
+                  <div class="dropzone-hint">Supports JPG, PNG, WEBP (Max size: 5MB)</div>
+                </div>
+                <input type="file" id="photo-file" class="file-input-hidden" accept="image/*">
+              </div>
+
+              <!-- Live Photo Preview -->
+              <div class="image-preview-container" id="preview-container">
+                <img id="image-preview" class="image-preview-img" src="" alt="Uploaded Issue Preview">
+                <button type="button" class="btn-remove-image" id="btn-remove-image"
+                  title="Remove photo">&times;</button>
+              </div>
+            </div>
+
+            <!-- Priority Radios -->
+            <div class="form-group full-width">
+              <label class="form-label">Priority Level <span class="required">*</span></label>
+              <div class="priority-selector">
+                <div class="priority-option">
+                  <input type="radio" name="priority" id="priority-low" value="Low">
+                  <label for="priority-low" class="priority-label">
+                    <span class="priority-dot dot-low"></span> Low
+                  </label>
+                </div>
+                <div class="priority-option">
+                  <input type="radio" name="priority" id="priority-medium" value="Medium" checked>
+                  <label for="priority-medium" class="priority-label">
+                    <span class="priority-dot dot-medium"></span> Medium
+                  </label>
+                </div>
+                <div class="priority-option">
+                  <input type="radio" name="priority" id="priority-high" value="High">
+                  <label for="priority-high" class="priority-label">
+                    <span class="priority-dot dot-high"></span> High
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="margin-top: 32px; text-align: center;">
+            <button type="submit" class="btn btn-primary btn-lg" style="min-width: 240px;">
+              Submit Complaint &rarr;
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Track Complaint Section -->
+  <section class="track-section" id="track">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Live Complaint Lookup</span>
+        <h2 class="section-title">Track Your Complaint Status</h2>
+        <p class="section-description">Enter your unique CityCare Complaint ID to check real-time updates from
+          government departments.</p>
+      </div>
+
+      <div class="track-search-box">
+        <div class="search-input-group">
+          <input type="text" id="track-id-input" placeholder="Enter Complaint ID (e.g. CC-2026-0101)">
+          <button type="button" class="btn btn-primary" id="btn-track-submit">
+            Search
+          </button>
+        </div>
+
+        <div class="sample-ids-wrapper">
+          <span>Try Demo IDs:</span>
+          <button class="sample-chip" data-id="CC-2026-0101">CC-2026-0101</button>
+          <button class="sample-chip" data-id="CC-2026-0102">CC-2026-0102</button>
+          <button class="sample-chip" data-id="CC-2026-0103">CC-2026-0103</button>
+          <button class="sample-chip" data-id="CC-2026-0104">CC-2026-0104</button>
+        </div>
+      </div>
+
+      <!-- Track Results Card -->
+      <div class="track-result-card" id="track-result-card">
+        <div class="track-header">
+          <div>
+            <div class="track-id-title" id="res-id">CC-2026-0000</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted);" id="res-date">Submitted on Sept 12, 2026</div>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <span class="badge badge-priority-high" id="res-priority-badge">HIGH PRIORITY</span>
+            <span class="badge badge-pending" id="res-status-badge">PENDING</span>
+          </div>
+        </div>
+
+        <div class="track-body">
+
+          <!-- Visual Timeline Stepper -->
+          <div class="timeline-stepper">
+            <div class="timeline-progress-line" id="timeline-progress-bar"></div>
+
+            <div class="timeline-step" id="step-submitted">
+              <div class="step-bubble">1</div>
+              <div class="step-label">Submitted</div>
+            </div>
+
+            <div class="timeline-step" id="step-pending">
+              <div class="step-bubble">2</div>
+              <div class="step-label">Pending</div>
+            </div>
+
+            <div class="timeline-step" id="step-assigned">
+              <div class="step-bubble">3</div>
+              <div class="step-label">Assigned</div>
+            </div>
+
+            <div class="timeline-step" id="step-in-progress">
+              <div class="step-bubble">4</div>
+              <div class="step-label">In Progress</div>
+            </div>
+
+            <div class="timeline-step" id="step-resolved">
+              <div class="step-bubble">5</div>
+              <div class="step-label">Resolved</div>
+            </div>
+          </div>
+
+          <!-- Complaint Information Grid -->
+          <div class="track-details-grid">
+            <div>
+              <div class="detail-group">
+                <div class="detail-label">Problem Category</div>
+                <div class="detail-value" id="res-category">Road & Potholes</div>
+              </div>
+
+              <div class="detail-group">
+                <div class="detail-label">Issue Title</div>
+                <div class="detail-value" id="res-title">Pothole near main junction</div>
+              </div>
+
+              <div class="detail-group">
+                <div class="detail-label">Location / Area</div>
+                <div class="detail-value" id="res-location">MG Road, Sector 4</div>
+              </div>
+
+              <div class="detail-group">
+                <div class="detail-label">Description</div>
+                <div class="detail-value" id="res-description" style="font-weight: normal; color: var(--text-dark);">
+                  Large pothole causing traffic obstruction.
+                </div>
+              </div>
+
+              <div class="detail-group" id="res-admin-remarks-group" style="display: none;">
+                <div class="detail-label" style="color: var(--primary-blue);">Official Dept Remarks</div>
+                <div class="detail-value" id="res-admin-remarks"
+                  style="background-color: var(--light-blue); padding: 12px; border-radius: var(--radius-md); font-size: 0.95rem;">
+                  Field crew assigned. Repair work scheduled.
+                </div>
+              </div>
+            </div>
+
+            <!-- Uploaded Image View -->
+            <div>
+              <div class="detail-label">Uploaded Image</div>
+              <div class="track-photo-container">
+                <img id="res-photo" src="" alt="Issue Photo">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Error Not Found Card -->
+      <div class="track-error-card" id="track-error-card">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="margin-bottom: 12px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">Complaint Not Found</h3>
+        <p style="font-size: 0.95rem;">We couldn't find any complaint matching ID "<span id="error-input-id"></span>".
+          Please double-check the Complaint ID and search again.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- About & FAQ Section -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Transparency & Trust</span>
+        <h2 class="section-title">About CityCare Platform</h2>
+        <p class="section-description">CityCare bridges the gap between urban residents and local municipal
+          infrastructure teams.</p>
+      </div>
+
+      <div class="faq-accordion">
+        <div class="faq-item active">
+          <button class="faq-question">
+            <span>How fast are reported complaints reviewed by authorities?</span>
+            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            Complaints submitted via CityCare are instantly digitized and routed to the corresponding zonal municipal
+            department. High-priority issues are typically reviewed within 4 hours.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Do I need to create an account to submit a report?</span>
+            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            No registration is required! You can file complaints immediately by entering your name and location. You
+            receive a unique Complaint ID (e.g. CC-2026-0001) to track progress anytime.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What happens after a complaint status changes to Resolved?</span>
+            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            When field inspectors complete work on-site, they mark the complaint as "Resolved" in the Admin Dashboard,
+            which immediately updates your tracking page status timeline.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-logo" style="color: #FFFFFF;">
+            <svg viewBox="0 0 24 24" fill="#FFFFFF">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            <span>CityCare</span>
+          </div>
+          <p>Citizen-to-Government Civic Issue Resolution Network. Empowering smarter, cleaner, and safer cities.</p>
+        </div>
+
+        <div>
+          <div class="footer-title">Quick Links</div>
+          <ul class="footer-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#categories">Categories</a></li>
+            <li><a href="#report">Report Issue</a></li>
+            <li><a href="#track">Track Status</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-title">Administration</div>
+          <ul class="footer-links">
+            <li><a href="admin.html">Municipal Admin Portal</a></li>
+            <li><a href="admin.html">Department Login</a></li>
+            <li><a href="#track">Public Dashboard</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-title">Helpline Contacts</div>
+          <ul class="footer-links">
+            <li><span style="opacity: 0.8;">Toll Free: 1800-CITY-CARE</span></li>
+            <li><span style="opacity: 0.8;">Emergency Control Room</span></li>
+            <li><span style="opacity: 0.8;">Email: support@citycare.gov.in</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 CityCare Civic Technology Network. All rights reserved.</div>
+        <div>White + Blue Theme • Working Frontend Prototype</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Submission Success Modal -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal-card">
+      <div class="modal-icon-success">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      </div>
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--dark-blue);">Complaint Submitted Successfully!</h3>
+      <p style="color: var(--text-muted); margin-top: 8px;">Your report has been logged and assigned to local municipal
+        department authorities.</p>
+
+      <div class="complaint-id-box" id="modal-complaint-id">
+        CC-2026-0001
+      </div>
+
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">
+        Please save or copy this Complaint ID to track status updates.
+      </p>
+
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" id="btn-copy-id">
+          Copy ID
+        </button>
+        <button class="btn btn-primary" id="btn-modal-track">
+          Track Complaint Now &rarr;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Citizen & Admin Unified Auth Modal -->
+  <div class="modal-overlay" id="citizen-auth-modal">
+    <div class="modal-card auth-modal-card">
+      <button class="modal-close-btn" id="btn-close-citizen-auth" aria-label="Close modal">&times;</button>
+
+      <div class="auth-header" id="auth-modal-header">
+        <div class="auth-badge-icon" id="auth-header-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <h3 id="auth-header-title">Citizen Account Access</h3>
+        <p id="auth-header-subtitle">Sign in or register to report civic issues and track complaints</p>
+      </div>
+
+      <!-- Professional Tab Switcher -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-signin" data-tab="signin">
+          👤 Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-signup" data-tab="signup">
+          📝 Register
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-admin" data-tab="admin">
+          🛡️ Admin Access
+        </button>
+      </div>
+
+      <!-- Alert Box -->
+      <div class="auth-alert" id="citizen-auth-alert"></div>
+
+      <!-- Sign In Form -->
+      <form id="citizen-signin-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="citizen-login-id">Email or Mobile Phone <span class="required">*</span></label>
+          <input type="text" id="citizen-login-id" class="form-control" placeholder="e.g. rahul@gmail.com or 9876543210"
+            required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="citizen-login-password">Password <span class="required">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="citizen-login-password" class="form-control" placeholder="••••••••" required>
+            <button type="button" class="toggle-password-btn"
+              onclick="CityCareAuth.togglePasswordVisibility('citizen-login-password', this)"
+              aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+          🔑 Sign In to My Account
+        </button>
+
+        <div class="auth-demo-hint">
+          <div style="font-weight: 700; margin-bottom: 2px;">⚡ Demo Citizen Credentials:</div>
+          <div>Email: <strong>rahul@gmail.com</strong> | Pass: <strong>user123</strong></div>
+          <button type="button" id="btn-quick-citizen-login" class="btn btn-secondary btn-sm"
+            style="margin-top: 6px; width: 100%;">
+            Auto-fill Rahul Sharma Credentials & Sign In
+          </button>
+        </div>
+      </form>
+
+      <!-- Sign Up Form (Initially hidden) -->
+      <form id="citizen-signup-form" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="citizen-reg-name">Full Name <span class="required">*</span></label>
+          <input type="text" id="citizen-reg-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="citizen-reg-phone">Mobile Phone Number <span class="required">*</span></label>
+          <input type="tel" id="citizen-reg-phone" class="form-control" placeholder="e.g. +91 98765 43210" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="citizen-reg-email">Email Address <span class="required">*</span></label>
+          <input type="email" id="citizen-reg-email" class="form-control" placeholder="e.g. rahul@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="citizen-reg-address">Residential Area / Address</label>
+          <input type="text" id="citizen-reg-address" class="form-control" placeholder="e.g. Green Park Sector 4, City">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="citizen-reg-password">Create Password <span class="required">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="citizen-reg-password" class="form-control" placeholder="Minimum 4 characters"
+              required>
+            <button type="button" class="toggle-password-btn"
+              onclick="CityCareAuth.togglePasswordVisibility('citizen-reg-password', this)"
+              aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+          ✨ Register Account & Sign In
+        </button>
+      </form>
+
+      <!-- Admin Sign In Form (Shown under Admin Access tab) -->
+      <form id="index-admin-login-form" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="index-admin-email">Admin Official Email <span class="required">*</span></label>
+          <input type="email" id="index-admin-email" class="form-control" value="jaiganesh4028@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="index-admin-password">Security Password <span class="required">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="index-admin-password" class="form-control" value="jai@hsenag" required>
+            <button type="button" class="toggle-password-btn"
+              onclick="CityCareAuth.togglePasswordVisibility('index-admin-password', this)"
+              aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary"
+          style="width: 100%; margin-top: 4px; background-color: var(--dark-blue);">
+          🛡️ Authenticate & Open Admin Dashboard
+        </button>
+
+        <div class="auth-demo-hint">
+          <div style="font-weight: 700; margin-bottom: 2px;">⚡ Preset Official Admin Credentials:</div>
+          <div>Email: <strong>jaiganesh4028@gmail.com</strong> | Pass: <strong>jai@hsenag</strong></div>
+          <button type="button" id="btn-quick-admin-login" class="btn btn-secondary btn-sm"
+            style="margin-top: 6px; width: 100%;">
+            One-Click Admin Login & Proceed to Dashboard &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Supabase CDN SDK & Application Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/script.js"></script>
+</body>
+
+</html>

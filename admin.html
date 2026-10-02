@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityCare - Government Admin Dashboard</title>
+  <meta name="description" content="Municipal Government Administration Portal for CityCare civic complaints management.">
+  <link rel="stylesheet" href="css/admin.css">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('citycare_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="admin.html" class="brand-logo">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span class="brand-title">CityCare</span>
+        </a>
+        <div style="margin-top: 8px;">
+          <span class="admin-badge">Municipal Admin</span>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-category-title">Dashboards</li>
+        <li>
+          <a href="#" class="sidebar-filter-link active" data-filter-status="ALL">
+            <span class="menu-item-left">
+              <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+              <span class="menu-item-text">All Complaints</span>
+            </span>
+            <span class="sidebar-count-badge" id="count-all">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-filter-link" data-filter-status="Pending">
+            <span class="menu-item-left">
+              <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+              <span class="menu-item-text">Pending</span>
+            </span>
+            <span class="sidebar-count-badge" id="count-pending">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-filter-link" data-filter-status="Assigned">
+            <span class="menu-item-left">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              <span class="menu-item-text">Assigned</span>
+            </span>
+            <span class="sidebar-count-badge" id="count-assigned">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-filter-link" data-filter-status="In Progress">
+            <span class="menu-item-left">
+              <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+              <span class="menu-item-text">In Progress</span>
+            </span>
+            <span class="sidebar-count-badge" id="count-progress">0</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-filter-link" data-filter-status="Resolved">
+            <span class="menu-item-left">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span class="menu-item-text">Resolved</span>
+            </span>
+            <span class="sidebar-count-badge" id="count-resolved">0</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="index.html" style="color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span class="menu-item-text">Citizen Portal Site</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      
+      <!-- Top Bar Header -->
+      <header class="admin-header">
+        <div class="page-title">
+          <h1>Civic Problem Complaints Dashboard</h1>
+        </div>
+
+        <div class="header-user-profile">
+          <!-- Dark & Bright Mode Toggle Button -->
+          <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Dark and Bright Mode" title="Switch Theme (Dark / Bright Mode)">
+            <div class="theme-toggle-track">
+              <span class="theme-icon sun-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              </span>
+              <span class="theme-icon moon-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </span>
+              <div class="theme-toggle-thumb"></div>
+            </div>
+            <span class="theme-toggle-text">Dark Mode</span>
+          </button>
+
+          <button id="btn-reset-data" class="select-control" style="background-color: var(--light-blue); color: var(--primary-blue); border: none; font-weight: 700;">
+            Reset Demo Data
+          </button>
+          
+          <!-- Interactive Profile Trigger -->
+          <div class="user-profile-card-trigger" id="user-profile-trigger" title="Click to view Profile & Theme options">
+            <div class="user-avatar">AD</div>
+            <div class="user-info">
+              <span class="user-name">Municipal Directorate</span>
+              <span class="user-role">City Zone Oversight Admin</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
+          <!-- Profile Dropdown Menu Popup -->
+          <div class="profile-dropdown-menu" id="user-profile-dropdown">
+            <div class="profile-dropdown-header">
+              <div class="profile-dropdown-avatar">AD</div>
+              <div>
+                <div class="profile-dropdown-title">Municipal Directorate</div>
+                <div class="profile-dropdown-role">City Zone Oversight Admin</div>
+                <div class="profile-dropdown-status">
+                  <span class="profile-dropdown-status-dot"></span> Online • Admin Portal
+                </div>
+              </div>
+            </div>
+
+            <!-- Appearance / Theme Selector -->
+            <div class="profile-theme-selector">
+              <div class="profile-theme-title">
+                <span>Display Theme</span>
+                <span id="active-theme-label" style="font-size:0.75rem; color:var(--primary-blue);">☀️ Bright Mode</span>
+              </div>
+              <div class="profile-theme-options">
+                <button type="button" class="theme-opt-btn" data-set-theme="light">
+                  ☀️ Bright Mode
+                </button>
+                <button type="button" class="theme-opt-btn" data-set-theme="dark">
+                  🌙 Dark Mode
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; padding-top: 4px; border-top: 1px solid var(--border-color); margin-bottom: 12px;">
+              <div><strong>Email:</strong> <span id="admin-header-email">jaiganesh4028@gmail.com</span></div>
+              <div><strong>Zone:</strong> Central Urban Directorate</div>
+            </div>
+
+            <button type="button" id="btn-admin-logout" class="btn btn-outline btn-sm" style="width: 100%; color: #DC2626; border-color: #FCA5A5; text-align: center;">
+              🚪 Sign Out of Admin
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+
+        <!-- Top Statistics KPI Cards -->
+        <div class="stats-cards-grid">
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <span class="kpi-label">Total Reports</span>
+              <span class="kpi-value" id="kpi-total">0</span>
+            </div>
+            <div class="kpi-icon icon-blue">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <span class="kpi-label">Pending Review</span>
+              <span class="kpi-value" id="kpi-pending">0</span>
+            </div>
+            <div class="kpi-icon icon-pending">
+              <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <span class="kpi-label">In Progress</span>
+              <span class="kpi-value" id="kpi-progress">0</span>
+            </div>
+            <div class="kpi-icon icon-progress">
+              <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-info">
+              <span class="kpi-label">Resolved</span>
+              <span class="kpi-value" id="kpi-resolved">0</span>
+            </div>
+            <div class="kpi-icon icon-resolved">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar for Search and Multi-Filtering -->
+        <div class="toolbar-card">
+          <div class="filter-group">
+            
+            <!-- Search Box -->
+            <div class="search-box">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="admin-search-input" placeholder="Search by ID, Citizen, Title, Location...">
+            </div>
+
+            <!-- Category Filter -->
+            <select id="filter-category" class="select-control">
+              <option value="ALL">All Categories</option>
+              <option value="Garbage">Garbage & Waste</option>
+              <option value="Road & Potholes">Road & Potholes</option>
+              <option value="Water Leakage">Water Leakage</option>
+              <option value="Streetlights">Streetlights</option>
+              <option value="Drainage">Drainage & Overflow</option>
+              <option value="Other">Other Issues</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select id="filter-status" class="select-control">
+              <option value="ALL">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Assigned">Assigned</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+
+            <!-- Priority Filter -->
+            <select id="filter-priority" class="select-control">
+              <option value="ALL">All Priorities</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+
+            <!-- Sort By -->
+            <select id="sort-by" class="select-control">
+              <option value="NEWEST">Newest First</option>
+              <option value="OLDEST">Oldest First</option>
+              <option value="PRIORITY">Priority: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Complaints Data Table Container -->
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Complaint ID</th>
+                  <th>Citizen Info</th>
+                  <th>Problem Category & Title</th>
+                  <th>Location</th>
+                  <th>Priority</th>
+                  <th>Submitted Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="complaints-table-body">
+                <!-- Dynamically Populated Rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State Container -->
+          <div class="empty-state-container" id="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <div class="empty-title">No Complaints Found</div>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">No complaints match the current search or filter criteria.</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Complaint Review & Status Editor Modal -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div class="modal-title-group">
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--dark-blue);" id="modal-id">CC-2026-0000</h3>
+          <span class="badge badge-priority-high" id="modal-priority">HIGH</span>
+        </div>
+        <button type="button" class="btn-close-modal" id="btn-modal-close">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        
+        <!-- Submitted Photo Preview -->
+        <div class="modal-photo-box">
+          <img id="modal-photo" src="" alt="Submitted Complaint Photo">
+        </div>
+
+        <!-- Details Grid -->
+        <div class="modal-details-grid">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Citizen Contact</div>
+            <div style="font-weight: 700; font-size: 1.05rem;" id="modal-citizen-name">Rahul Sharma</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);" id="modal-citizen-phone">+91 98765 43210</div>
+          </div>
+
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Category & Date</div>
+            <div style="font-weight: 700; font-size: 1.05rem;" id="modal-category">Road & Potholes</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted);" id="modal-date">Sept 12, 2026 10:30 AM</div>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Area / Location</div>
+            <div style="font-weight: 700; font-size: 1rem;" id="modal-location">MG Road Slipway, West Junction</div>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Description</div>
+            <div style="font-size: 0.95rem; margin-top: 4px; color: var(--text-dark);" id="modal-description">Detailed description text...</div>
+          </div>
+        </div>
+
+        <!-- Interactive Status Change Controls -->
+        <div class="status-change-box">
+          <h4>Update Resolution Status</h4>
+          <div class="status-options-grid">
+            <button type="button" class="status-opt-btn" data-status="Pending">Pending</button>
+            <button type="button" class="status-opt-btn" data-status="Assigned">Assigned</button>
+            <button type="button" class="status-opt-btn" data-status="In Progress">In Progress</button>
+            <button type="button" class="status-opt-btn" data-status="Resolved">Resolved</button>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <label style="font-size: 0.875rem; font-weight: 700; color: var(--dark-blue); display: block; margin-bottom: 6px;">
+              Official Department Remarks / Action Notes:
+            </label>
+            <input type="text" id="modal-admin-remarks" class="select-control" style="width: 100%;" placeholder="e.g. Field inspection team dispatched with repair machinery...">
+          </div>
+
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" class="btn-action" id="btn-save-status" style="padding: 10px 24px; font-size: 0.95rem; background-color: var(--primary-blue); color: #fff; border: none;">
+              Save Status Update
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Security Login Gate Overlay -->
+  <div class="admin-login-overlay" id="admin-login-overlay">
+    <div class="admin-login-card">
+      <div class="auth-header">
+        <div class="auth-badge-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h3>Government Admin Authentication</h3>
+        <p>CityCare Municipal Complaint Management System</p>
+      </div>
+
+      <div class="auth-alert" id="admin-login-alert"></div>
+
+      <form id="admin-login-form" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="admin-login-email">Official Admin Email <span class="required">*</span></label>
+          <input type="email" id="admin-login-email" class="form-control" value="jaiganesh4028@gmail.com" placeholder="jaiganesh4028@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-login-password">Security Password <span class="required">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="admin-login-password" class="form-control" value="jai@hsenag" placeholder="••••••••" required>
+            <button type="button" class="toggle-password-btn" onclick="CityCareAuth.togglePasswordVisibility('admin-login-password', this)" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px;">
+          🔑 Authenticate & Open Dashboard
+        </button>
+
+        <div class="auth-demo-hint">
+          <div style="font-weight: 700; margin-bottom: 2px;">⚡ Preset Admin Demo Credentials:</div>
+          <div>Email: <strong>jaiganesh4028@gmail.com</strong> | Pass: <strong>jai@hsenag</strong></div>
+          <button type="button" id="btn-quick-admin-login-overlay" class="btn btn-secondary btn-sm">
+            One-Click Instant Admin Access &rarr;
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="index.html" style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600;">
+            &larr; Return to Citizen Public Site
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Supabase CDN SDK & Admin Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
