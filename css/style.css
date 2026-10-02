@@ -1641,8 +1641,11 @@ textarea {
    ========================================================================== */
 .auth-modal-card {
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   text-align: left;
   position: relative;
+  scrollbar-width: thin;
 }
 
 .modal-close-btn {

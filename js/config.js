@@ -7,7 +7,7 @@
 
 const SUPABASE_CONFIG = {
   // Example: 'https://xyzcompany.supabase.co'
-  SUPABASE_URL: 'https://qjdcrhroobagoemqckqv.supabase.co/rest/v1/',
+  SUPABASE_URL: 'https://qjdcrhroobagoemqckqv.supabase.co',
   
   // Example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqZGNyaHJvb2JhZ29lbXFja3F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMTU4ODcsImV4cCI6MjEwNDg5MTg4N30.GJGR2rsGKevJ8A0qSDrjGKjZP0cexWujUqEAZcQhYx8',

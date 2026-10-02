@@ -742,6 +742,14 @@ function initAuthUI() {
   if (tabBtnSignup) tabBtnSignup.addEventListener('click', () => switchAuthTab('signup'));
   if (tabBtnAdmin) tabBtnAdmin.addEventListener('click', () => switchAuthTab('admin'));
 
+  const linkSwitchToSignin = document.getElementById('link-switch-to-signin');
+  if (linkSwitchToSignin) {
+    linkSwitchToSignin.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchAuthTab('signin');
+    });
+  }
+
   // Trigger Citizen Auth Modal opening
   const navProfileBtn = document.getElementById('citizen-profile-trigger');
   const closeCitizenAuthBtn = document.getElementById('btn-close-citizen-auth');
@@ -777,12 +785,12 @@ function initAuthUI() {
 
   // Citizen Sign In Form Submission
   if (signinForm) {
-    signinForm.addEventListener('submit', (e) => {
+    signinForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const loginId = document.getElementById('citizen-login-id').value;
       const password = document.getElementById('citizen-login-password').value;
 
-      const res = CityCareAuth.loginCitizen(loginId, password);
+      const res = await CityCareAuth.loginCitizen(loginId, password);
       if (res.success) {
         showToast(`Welcome back, ${res.user.fullName}!`);
         closeCitizenAuthModal();
@@ -795,7 +803,7 @@ function initAuthUI() {
 
   // Citizen Sign Up Form Submission
   if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
+    signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fullName = document.getElementById('citizen-reg-name').value;
       const phone = document.getElementById('citizen-reg-phone').value;
@@ -803,7 +811,7 @@ function initAuthUI() {
       const address = document.getElementById('citizen-reg-address').value;
       const password = document.getElementById('citizen-reg-password').value;
 
-      const res = CityCareAuth.registerCitizen({ fullName, phone, email, password, address });
+      const res = await CityCareAuth.registerCitizen({ fullName, phone, email, password, address });
       if (res.success) {
         showToast(`Account registered! Welcome ${res.user.fullName}`);
         closeCitizenAuthModal();
@@ -817,13 +825,13 @@ function initAuthUI() {
   // Quick Demo Citizen Button
   const quickCitizenBtn = document.getElementById('btn-quick-citizen-login');
   if (quickCitizenBtn) {
-    quickCitizenBtn.addEventListener('click', () => {
+    quickCitizenBtn.addEventListener('click', async () => {
       const idInput = document.getElementById('citizen-login-id');
       const passInput = document.getElementById('citizen-login-password');
       if (idInput) idInput.value = 'rahul@gmail.com';
       if (passInput) passInput.value = 'user123';
       
-      const res = CityCareAuth.loginCitizen('rahul@gmail.com', 'user123');
+      const res = await CityCareAuth.loginCitizen('rahul@gmail.com', 'user123');
       if (res.success) {
         showToast(`Demo Sign In: ${res.user.fullName}`);
         closeCitizenAuthModal();

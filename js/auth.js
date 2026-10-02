@@ -1,6 +1,6 @@
 /**
  * CityCare - Authentication & Session Management Module
- * Manages Citizen Sign In / Sign Up and Admin Login with LocalStorage & Supabase sync fallback
+ * Connects Citizen Sign In / Sign Up and Admin Login with Backend REST Database & LocalStorage
  */
 
 const CityCareAuth = {
@@ -10,7 +10,6 @@ const CityCareAuth = {
     ADMIN_SESSION: 'citycare_admin_session'
   },
 
-  // Official Demo Citizen Account
   DEFAULT_CITIZEN: {
     id: 'CIT-1001',
     fullName: 'Rahul Sharma',
@@ -22,7 +21,6 @@ const CityCareAuth = {
     registeredAt: '2026-01-15T10:00:00.000Z'
   },
 
-  // Official Admin Credentials requested by User
   DEFAULT_ADMIN: {
     email: 'jaiganesh4028@gmail.com',
     password: 'jai@hsenag',
@@ -32,7 +30,6 @@ const CityCareAuth = {
   },
 
   init() {
-    // Seed default citizen if registered users list is empty
     const users = this.getRegisteredUsers();
     if (users.length === 0) {
       localStorage.setItem(this.KEYS.CITIZENS, JSON.stringify([this.DEFAULT_CITIZEN]));
@@ -44,40 +41,47 @@ const CityCareAuth = {
       const data = localStorage.getItem(this.KEYS.CITIZENS);
       return data ? JSON.parse(data) : [];
     } catch (e) {
-      console.warn('Error reading registered users from LocalStorage:', e);
       return [];
     }
   },
 
-  registerCitizen({ fullName, phone, email, password, address }) {
-    if (!fullName || !fullName.trim()) {
-      return { success: false, message: 'Please enter your Full Name.' };
-    }
-    if (!phone || !phone.trim()) {
-      return { success: false, message: 'Please enter a valid Mobile Phone Number.' };
-    }
-    if (!email || !email.trim()) {
-      return { success: false, message: 'Please enter a valid Email address.' };
-    }
-    if (!password || password.length < 4) {
-      return { success: false, message: 'Password must be at least 4 characters long.' };
+  async registerCitizen({ fullName, phone, email, password, address }) {
+    if (!fullName || !fullName.trim()) return { success: false, message: 'Please enter your Full Name.' };
+    if (!phone || !phone.trim()) return { success: false, message: 'Please enter a valid Mobile Phone Number.' };
+    if (!email || !email.trim()) return { success: false, message: 'Please enter a valid Email address.' };
+    if (!password || password.length < 4) return { success: false, message: 'Password must be at least 4 characters long.' };
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone.trim().replace(/\s+/g, '');
+
+    // 1. Try Backend REST API (/api/auth/register)
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, phone, email: cleanEmail, password, address })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        this.setCurrentUser(data.user);
+        this.saveUserToLocalStorage(data.user);
+        return { success: true, user: data.user, message: 'Account registered successfully in Backend DB!' };
+      } else if (data.message) {
+        return { success: false, message: data.message };
+      }
+    } catch (e) {
+      console.info('Backend auth endpoint unreachable, operating in LocalStorage mode.');
     }
 
+    // 2. Fallback to LocalStorage
     const users = this.getRegisteredUsers();
-    const cleanEmail = (email || '').trim().toLowerCase();
-    const cleanPhone = (phone || '').trim().replace(/\s+/g, '');
-
-    // Check if user with phone or email already exists
     const existing = users.find(u => 
       (cleanEmail && u.email && u.email.toLowerCase() === cleanEmail) || 
       (cleanPhone && u.phone && u.phone.replace(/\s+/g, '') === cleanPhone)
     );
 
     if (existing) {
-      return { 
-        success: false, 
-        message: 'An account with this Email or Mobile Phone number already exists. Please Sign In instead.' 
-      };
+      return { success: false, message: 'An account with this Email or Mobile Phone number already exists. Please Sign In instead.' };
     }
 
     const newUser = {
@@ -93,26 +97,33 @@ const CityCareAuth = {
 
     users.push(newUser);
     localStorage.setItem(this.KEYS.CITIZENS, JSON.stringify(users));
-    
-    // Auto log in after registration
     this.setCurrentUser(newUser);
 
-    return { 
-      success: true, 
-      user: newUser, 
-      message: 'Account registered successfully! Welcome to CityCare.' 
-    };
+    return { success: true, user: newUser, message: 'Account registered successfully! Welcome to CityCare.' };
   },
 
-  loginCitizen(identifier, password) {
-    const users = this.getRegisteredUsers();
+  async loginCitizen(identifier, password) {
     const query = (identifier || '').trim().toLowerCase().replace(/\s+/g, '');
+    if (!query || !password) return { success: false, message: 'Please provide both Email/Phone and Password.' };
 
-    if (!query || !password) {
-      return { success: false, message: 'Please provide both Email/Phone and Password.' };
+    // 1. Try Backend REST API (/api/auth/login)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: query, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        this.setCurrentUser(data.user);
+        return { success: true, user: data.user, message: `Welcome back, ${data.user.fullName}!` };
+      }
+    } catch (e) {
+      console.info('Backend auth API skipped, using LocalStorage.');
     }
 
-    // Match by email or phone number
+    // 2. Fallback to LocalStorage
+    const users = this.getRegisteredUsers();
     const user = users.find(u => {
       const uEmail = (u.email || '').toLowerCase();
       const uPhone = (u.phone || '').replace(/\s+/g, '');
@@ -125,6 +136,14 @@ const CityCareAuth = {
 
     this.setCurrentUser(user);
     return { success: true, user, message: `Welcome back, ${user.fullName}!` };
+  },
+
+  saveUserToLocalStorage(user) {
+    const users = this.getRegisteredUsers();
+    if (!users.some(u => u.id === user.id || u.email === user.email)) {
+      users.push(user);
+      localStorage.setItem(this.KEYS.CITIZENS, JSON.stringify(users));
+    }
   },
 
   setCurrentUser(user) {
@@ -175,7 +194,6 @@ const CityCareAuth = {
     localStorage.removeItem(this.KEYS.ADMIN_SESSION);
   },
 
-  // Helper to generate initials avatar (e.g. "Rahul Sharma" -> "RS")
   getInitials(name) {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -185,11 +203,9 @@ const CityCareAuth = {
     return name.substring(0, 2).toUpperCase();
   },
 
-  // Helper function to toggle password field visibility
   togglePasswordVisibility(inputId, buttonEl) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    
     if (input.type === 'password') {
       input.type = 'text';
       if (buttonEl) buttonEl.innerHTML = `🙈`;
@@ -200,5 +216,4 @@ const CityCareAuth = {
   }
 };
 
-// Initialize immediately
 CityCareAuth.init();
